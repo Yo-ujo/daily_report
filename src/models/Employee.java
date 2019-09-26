@@ -87,7 +87,7 @@ public class Employee {
 		this.password = password;
 	}
 	
-	public Integer setAdmin_flag(){
+	public Integer getAdmin_flag(){
 		return admin_flag;
 	}
 	public void setAdmin_flag(Integer admin_flag){
