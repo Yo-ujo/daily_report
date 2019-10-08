@@ -21,80 +21,82 @@ import utils.EncryptUtil;
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public LoginServlet() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#HttpServlet()
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		request.setAttribute("_token", request.getSession().getId());
-		request.setAttribute("hasError", false);
-		if(request.getSession().getAttribute("flush") != null){
-			request.setAttribute("flush", request.getSession().getAttribute("flush"));
-			request.getSession().removeAttribute("flush");
-		}
-		
-		RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/login/login.jsp");
-		rd.forward(request, response);
-	
+	public LoginServlet() {
+		super();
+		// TODO Auto-generated constructor stub
 	}
 
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		request.setAttribute("_token", request.getSession().getId());
+		request.setAttribute("hasError", false);
+		if (request.getSession().getAttribute("flush") != null) {
+			request.setAttribute("flush", request.getSession().getAttribute("flush"));
+			request.getSession().removeAttribute("flush");
+		}
+
+		RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/login/login.jsp");
+		rd.forward(request, response);
+
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		Boolean check_result = false;
-		
+
 		String code = request.getParameter("code");
 		String plain_pass = request.getParameter("password");
-		
+
 		Employee e = null;
-		
-		if(code != null && !code.equals("") && plain_pass != null && !plain_pass.equals("")){
+
+		if (code != null && !code.equals("") && plain_pass != null && !plain_pass.equals("")) {
 			EntityManager em = DBUtil.createEntityManager();
-			
-			String password = EncryptUtil.getPasswordEncrypt(
-					plain_pass,
-					(String)this.getServletContext().getAttribute("salt")
-					);
-			
-			try{
-				e = em.createNamedQuery("checkLoginCodeAndPassword", Employee.class)
-						.setParameter("code", code)
-						.setParameter("pass", password)
-						.getSingleResult();
-			}catch(NoResultException ex){}
-			
+
+			String password = EncryptUtil.getPasswordEncrypt(plain_pass,
+					(String) this.getServletContext().getAttribute("salt"));
+
+			try {
+				e = em.createNamedQuery("checkLoginCodeAndPassword", Employee.class).setParameter("code", code)
+						.setParameter("pass", password).getSingleResult();
+			} catch (NoResultException ex) {
+			}
+
 			em.close();
-			
-			if(e != null){
+
+			if (e != null) {
 				check_result = true;
 			}
-			
-			if(!check_result){
-				request.setAttribute("_token", request.getSession().getId());
-				request.setAttribute("hasError", true);
-				request.setAttribute("code", code);
-				
-				RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/login/login.jsp");
-				rd.forward(request, response);
-			}else{
-				
-				request.getSession().setAttribute("login_employee", e);
-				
-				request.getSession().setAttribute("flush", "ログインしました。");
-				response.sendRedirect(request.getContextPath() + "/");
-			}
 		}
+
+		if (!check_result) {
+			request.setAttribute("_token", request.getSession().getId());
+			request.setAttribute("hasError", true);
+			request.setAttribute("code", code);
+
+			RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/login/login.jsp");
+			rd.forward(request, response);
+		} else {
+
+			request.getSession().setAttribute("login_employee", e);
+
+			request.getSession().setAttribute("flush", "ログインしました。");
+			response.sendRedirect(request.getContextPath() + "/");
+		}
+
 	}
 
 }
